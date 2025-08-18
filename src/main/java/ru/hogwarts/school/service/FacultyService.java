@@ -13,8 +13,23 @@ public class FacultyService {
         this.facultyRepository = facultyRepository;
     }
 
-    public List<Faculty> searchFaculties(String query) {
-        return facultyRepository.searchByNameOrColor(query);
+    public List<Faculty> findByName(String name) {
+        return facultyRepository.findByNameIgnoreCase(name);
+    }
 
+    public List<Faculty> findByColor(String color) {
+        return facultyRepository.findByColorIgnoreCase(color);
+    }
+
+    public List<Faculty> findByNameOrColor(String name, String color) {
+        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, color);
+    }
+
+    public List<Faculty> searchByName(String part) {
+        return facultyRepository.findByNameContainingIgnoreCase(part);
+    }
+
+    public List<Faculty> searchByNameOrColor(String part) {
+        return facultyRepository.findByNameContainingIgnoreCaseOrColorContainingIgnoreCase(part, part);
     }
 }
