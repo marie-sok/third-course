@@ -1,5 +1,4 @@
 package ru.hogwarts.school.model;
-
 import jakarta.persistence.*;
 import java.util.Objects;
 
@@ -30,35 +29,27 @@ public class Student {
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public int getAge() {
         return age;
     }
-
     public void setAge(int age) {
         this.age = age;
     }
-
     public Faculty getFaculty() {
         return faculty;
     }
-
     public void setFaculty(Faculty faculty) {
         this.faculty = faculty;
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,12 +57,10 @@ public class Student {
         Student student = (Student) o;
         return Objects.equals(id, student.id);
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
-
     @Override
     public String toString() {
         return "Student{" +

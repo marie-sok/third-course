@@ -1,5 +1,4 @@
 package ru.hogwarts.school.model;
-
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -23,6 +22,9 @@ public class Faculty {
         this.id = id;
         this.name = name;
         this.color = color;
+    }
+
+    public Faculty(Object o, String gryffindor, String red, Object o1) {
     }
 
     public Long getId() {
