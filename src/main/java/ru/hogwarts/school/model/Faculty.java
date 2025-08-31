@@ -1,9 +1,9 @@
 package ru.hogwarts.school.model;
+
 import jakarta.persistence.*;
-import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Table(name = "faculties")
 public class Faculty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,19 +12,12 @@ public class Faculty {
     private String name;
     private String color;
 
-    @OneToMany(mappedBy = "faculty", cascade = CascadeType.ALL)
-    private List<Student> students;
-
     public Faculty() {
     }
 
-    public Faculty(Long id, String name, String color) {
-        this.id = id;
+    public Faculty(String name, String color) {
         this.name = name;
         this.color = color;
-    }
-
-    public Faculty(Object o, String gryffindor, String red, Object o1) {
     }
 
     public Long getId() {
@@ -51,12 +44,17 @@ public class Faculty {
         this.color = color;
     }
 
-    public List<Student> getStudents() {
-        return students;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Faculty faculty = (Faculty) o;
+        return Objects.equals(id, faculty.id);
     }
 
-    public void setStudents(List<Student> students) {
-        this.students = students;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override

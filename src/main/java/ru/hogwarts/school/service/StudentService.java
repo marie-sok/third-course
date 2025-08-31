@@ -20,4 +20,8 @@ public class StudentService {
     public List<Student> findByFacultyId(Long facultyId) {
         return studentRepository.findByFacultyId(facultyId);
     }
+
+    public Student findById(Long id) {
+        return studentRepository.findById(id).orElse(null);
+    }
 }

@@ -4,21 +4,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.controller.FacultyController;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collections;
+import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FacultyController.class)
-public class FacultyControllerWebMvcTest {
+class FacultyControllerWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -27,34 +27,36 @@ public class FacultyControllerWebMvcTest {
     private FacultyService facultyService;
 
     @Test
-    public void testGetByName() throws Exception {
-        Faculty faculty = new Faculty(1L, "Gryffindor", "Red", null);
-        when(facultyService.findByName(anyString()))
-                .thenReturn(Collections.singletonList(faculty));
+    void testGetByColor() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/faculty/by-name")
-                        .param("name", "Gryffindor")
-                        .contentType(MediaType.APPLICATION_JSON))
+        Faculty testFaculty = new Faculty();
+        testFaculty.setId(1L);
+        testFaculty.setName("Gryffindor");
+        testFaculty.setColor("Red");
+
+
+        when(facultyService.getByColor("Red"))
+                .thenReturn(Collections.singletonList(testFaculty));
+
+
+        mockMvc.perform(get("/faculty/by-color")
+                        .param("color", "Red"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Gryffindor"))
-                .andExpect(jsonPath("$[0].color").value("Red"))
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$[0].color").value("Red"));
     }
 
     @Test
-    public void testGetByColor() throws Exception {
-        Faculty faculty = new Faculty(1L, "Gryffindor", "Red", null);
-        when(facultyService.findByColor(anyString()))
-                .thenReturn(Collections.singletonList(faculty));
+    void testGetByColor_EmptyResult() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/faculty/by-color")
-                        .param("color", "Red")
-                        .contentType(MediaType.APPLICATION_JSON))
+        when(facultyService.getByColor("Blue"))
+                .thenReturn(Collections.emptyList());
+
+
+        mockMvc.perform(get("/faculty/by-color")
+                        .param("color", "Blue"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Gryffindor"))
-                .andExpect(jsonPath("$[0].color").value("Red"))
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$").isEmpty());
     }
 }
