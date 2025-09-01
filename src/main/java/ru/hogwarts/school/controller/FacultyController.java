@@ -1,9 +1,9 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.service.FacultyService;
+
 import java.util.List;
 
 @RestController
@@ -15,28 +15,43 @@ public class FacultyController {
         this.facultyService = facultyService;
     }
 
-    @GetMapping("/by-name")
-    public ResponseEntity<List<Faculty>> getByName(@RequestParam String name) {
-        return ResponseEntity.ok(facultyService.findByName(name));
+    @PostMapping
+    public Faculty create(@RequestBody Faculty faculty) {
+        return facultyService.create(faculty);
+    }
+
+    @GetMapping("/{id}")
+    public Faculty read(@PathVariable long id) {
+        return facultyService.read(id);
+    }
+
+    @PutMapping
+    public Faculty update(@RequestBody Faculty faculty) {
+        return facultyService.update(faculty);
+    }
+
+    @DeleteMapping("/{id}")
+    public Faculty delete(@PathVariable long id) {
+        return facultyService.delete(id);
     }
 
     @GetMapping("/by-color")
-    public ResponseEntity<List<Faculty>> getByColor(@RequestParam String color) {
-        return ResponseEntity.ok(facultyService.findByColor(color));
+    public List<Faculty> getByColor(@RequestParam String color) {
+        return facultyService.getByColor(color);
+    }
+
+    @GetMapping("/by-name")
+    public List<Faculty> getByName(@RequestParam String name) {
+        return facultyService.getByName(name);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Faculty>> search(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String color) {
+    public List<Faculty> searchByNameOrColor(@RequestParam String nameOrColor) {
+        return facultyService.findByNameOrColor(nameOrColor);
+    }
 
-        if (name != null && color != null) {
-            return ResponseEntity.ok(facultyService.findByNameOrColor(name, color));
-        } else if (name != null) {
-            return ResponseEntity.ok(facultyService.searchByName(name));
-        } else if (color != null) {
-            return ResponseEntity.ok(facultyService.findByColor(color));
-        }
-        return ResponseEntity.badRequest().build();
+    @GetMapping
+    public List<Faculty> getAll() {
+        return facultyService.getAll();
     }
 }

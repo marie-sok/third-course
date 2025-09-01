@@ -1,9 +1,9 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
+
 import java.util.List;
 
 @RestController
@@ -15,15 +15,39 @@ public class StudentController {
         this.studentService = studentService;
     }
 
+    @PostMapping
+    public Student create(@RequestBody Student student) {
+        return studentService.create(student);
+    }
+
+    @GetMapping("/{id}")
+    public Student getStudentById(@PathVariable Long id) {
+        return studentService.findById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Student update(@PathVariable Long id, @RequestBody Student student) {
+        return studentService.update(id, student);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        studentService.delete(id);
+    }
+
     @GetMapping("/age-between")
-    public ResponseEntity<List<Student>> getStudentsByAgeBetween(
-            @RequestParam int minAge,
-            @RequestParam int maxAge) {
-        return ResponseEntity.ok(studentService.findByAgeBetween(minAge, maxAge));
+    public List<Student> getStudentsByAgeBetween(@RequestParam int minAge,
+                                                 @RequestParam int maxAge) {
+        return studentService.findByAgeBetween(minAge, maxAge);
     }
 
     @GetMapping("/by-faculty")
-    public ResponseEntity<List<Student>> getStudentsByFaculty(@RequestParam Long facultyId) {
-        return ResponseEntity.ok(studentService.findByFacultyId(facultyId));
+    public List<Student> getStudentsByFaculty(@RequestParam Long facultyId) {
+        return studentService.findByFacultyId(facultyId);
+    }
+
+    @GetMapping
+    public List<Student> getAllStudents() {
+        return studentService.getAll();
     }
 }
