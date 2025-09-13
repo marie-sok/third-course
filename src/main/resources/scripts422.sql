@@ -16,3 +16,4 @@ CREATE TABLE person (
 
 
 ALTER TABLE person ADD CONSTRAINT fk_person_car FOREIGN KEY (car_id) REFERENCES car(id);
+

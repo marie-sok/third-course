@@ -6,3 +6,4 @@ LEFT JOIN faculty f ON s.faculty_id = f.id;
 SELECT s.name AS student_name
 FROM student s
 INNER JOIN avatars a ON s.id = a.student_id;
+
