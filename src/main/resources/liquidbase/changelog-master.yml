@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/changelogs/001-create-student-name-index.yml
+  - include:
+      file: liquibase/changelogs/002-create-faculty-name-color-index.yml
