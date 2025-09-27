@@ -3,7 +3,6 @@ package ru.hogwarts.school.controller;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.service.FacultyService;
-
 import java.util.List;
 
 @RestController
@@ -16,42 +15,43 @@ public class FacultyController {
     }
 
     @PostMapping
-    public Faculty create(@RequestBody Faculty faculty) {
-        return facultyService.create(faculty);
+    public Faculty createFaculty(@RequestBody Faculty faculty) {
+        return facultyService.createFaculty(faculty);
     }
 
     @GetMapping("/{id}")
-    public Faculty read(@PathVariable long id) {
-        return facultyService.read(id);
+    public Faculty getFaculty(@PathVariable Long id) {
+        return facultyService.getFaculty(id);
     }
 
-    @PutMapping
-    public Faculty update(@RequestBody Faculty faculty) {
-        return facultyService.update(faculty);
+    @PutMapping("/{id}")
+    public Faculty updateFaculty(@PathVariable Long id, @RequestBody Faculty faculty) {
+        return facultyService.updateFaculty(id, faculty);
     }
 
     @DeleteMapping("/{id}")
-    public Faculty delete(@PathVariable long id) {
-        return facultyService.delete(id);
+    public void deleteFaculty(@PathVariable Long id) {
+        facultyService.deleteFaculty(id);
     }
 
-    @GetMapping("/by-color")
-    public List<Faculty> getByColor(@RequestParam String color) {
-        return facultyService.getByColor(color);
-    }
-
-    @GetMapping("/by-name")
-    public List<Faculty> getByName(@RequestParam String name) {
-        return facultyService.getByName(name);
+    @GetMapping("/color/{color}")
+    public List<Faculty> getFacultiesByColor(@PathVariable String color) {
+        return facultyService.getFacultiesByColor(color);
     }
 
     @GetMapping("/search")
-    public List<Faculty> searchByNameOrColor(@RequestParam String nameOrColor) {
-        return facultyService.findByNameOrColor(nameOrColor);
+    public List<Faculty> searchFaculties(@RequestParam(required = false) String name,
+                                         @RequestParam(required = false) String color) {
+        return facultyService.searchFaculties(name, color);
     }
 
     @GetMapping
-    public List<Faculty> getAll() {
-        return facultyService.getAll();
+    public List<Faculty> getAllFaculties() {
+        return facultyService.getAllFaculties();
+    }
+
+    @GetMapping("/longest-name")
+    public String getLongestFacultyName() {
+        return facultyService.getLongestFacultyName();
     }
 }

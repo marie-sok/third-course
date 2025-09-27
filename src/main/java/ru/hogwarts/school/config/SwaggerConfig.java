@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "Hogwarts School API",
                 version = "1.0",
-                description = "API for managing Hogwarts School data"
+                description = "API for students management in the Hogwarts"
         )
 )
 public class SwaggerConfig {

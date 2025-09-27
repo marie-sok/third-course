@@ -9,6 +9,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@TestPropertySource(properties = {"spring.liquibase.enabled=false"})
 public class StudentControllerNewEndpointsTest {
 
     @LocalServerPort
@@ -27,8 +29,13 @@ public class StudentControllerNewEndpointsTest {
     @Autowired
     private StudentRepository studentRepository;
 
+    private String baseUrl;
+
     @BeforeEach
     void setUp() {
+        baseUrl = "http://localhost:" + port;
+        studentRepository.deleteAll();
+
         Student student1 = new Student();
         student1.setName("Ron Weasley");
         student1.setAge(17);
@@ -47,38 +54,49 @@ public class StudentControllerNewEndpointsTest {
 
     @Test
     public void testGetStudentsCount() {
-        String url = "http://localhost:" + port + "/student/count";
-        ResponseEntity<Integer> response = restTemplate.getForEntity(url, Integer.class);
+        ResponseEntity<Integer> response = restTemplate.getForEntity(baseUrl + "/student/count", Integer.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(3, response.getBody());
     }
 
     @Test
     public void testGetStudentsAverageAge() {
-        String url = "http://localhost:" + port + "/student/average-age";
-        ResponseEntity<Double> response = restTemplate.getForEntity(url, Double.class);
+        ResponseEntity<Double> response = restTemplate.getForEntity(baseUrl + "/student/average-age", Double.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        assertTrue(response.getBody() > 16.6 && response.getBody() < 16.7);
+        assertEquals(16.666666666666668, response.getBody(), 0.0001);
     }
 
     @Test
-    public void testGetLastFiveStudents() {
-        String url = "http://localhost:" + port + "/student/last-five";
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+    public void testGetStudentNamesStartingWithA() {
+        Student student4 = new Student();
+        student4.setName("Alice");
+        student4.setAge(20);
+        studentRepository.save(student4);
 
-        assertTrue(response.getBody().contains("Ron Weasley"));
-        assertTrue(response.getBody().contains("Ginny Weasley"));
-        assertTrue(response.getBody().contains("Neville Longbottom"));
+        Student student5 = new Student();
+        student5.setName("Andrew");
+        student5.setAge(22);
+        studentRepository.save(student5);
+
+        ResponseEntity<String[]> response = restTemplate.getForEntity(baseUrl + "/student/names-starting-with-a", String[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().length);
+        assertTrue(java.util.Arrays.asList(response.getBody()).contains("ALICE"));
+        assertTrue(java.util.Arrays.asList(response.getBody()).contains("ANDREW"));
     }
 
     @Test
-    public void testGetAvatarsWithPagination() {
-        String url = "http://localhost:" + port + "/avatar?page=0&size=5";
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+    public void testCalculateSum() {
+        ResponseEntity<Long> response = restTemplate.getForEntity(baseUrl + "/student/stream/sum", Long.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(500000500000L, response.getBody());
+    }
 
-        assertEquals("[]", response.getBody());
+    @Test
+    public void testCalculateSumOptimized() {
+        ResponseEntity<Long> response = restTemplate.getForEntity(baseUrl + "/student/stream/sum-optimized", Long.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(500000500000L, response.getBody());
     }
 }

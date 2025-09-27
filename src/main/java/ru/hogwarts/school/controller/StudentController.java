@@ -3,7 +3,6 @@ package ru.hogwarts.school.controller;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
-
 import java.util.List;
 
 @RestController
@@ -16,41 +15,39 @@ public class StudentController {
     }
 
     @PostMapping
-    public Student create(@RequestBody Student student) {
-        return studentService.create(student);
+    public Student createStudent(@RequestBody Student student) {
+        return studentService.createStudent(student);
     }
 
     @GetMapping("/{id}")
-    public Student getStudentById(@PathVariable Long id) {
-        return studentService.findById(id);
+    public Student getStudent(@PathVariable Long id) {
+        return studentService.getStudent(id);
     }
 
     @PutMapping("/{id}")
-    public Student update(@PathVariable Long id, @RequestBody Student student) {
-        return studentService.update(id, student);
+    public Student updateStudent(@PathVariable Long id, @RequestBody Student student) {
+        return studentService.updateStudent(id, student);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        studentService.delete(id);
+    public void deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
     }
 
-    @GetMapping("/age-between")
-    public List<Student> getStudentsByAgeBetween(@RequestParam int minAge,
-                                                 @RequestParam int maxAge) {
-        return studentService.findByAgeBetween(minAge, maxAge);
+    @GetMapping("/age/{age}")
+    public List<Student> getStudentsByAge(@PathVariable int age) {
+        return studentService.getStudentsByAge(age);
     }
 
-    @GetMapping("/by-faculty")
-    public List<Student> getStudentsByFaculty(@RequestParam Long facultyId) {
-        return studentService.findByFacultyId(facultyId);
+    @GetMapping("/age/between")
+    public List<Student> getStudentsByAgeBetween(@RequestParam int min, @RequestParam int max) {
+        return studentService.getStudentsByAgeBetween(min, max);
     }
 
-    @GetMapping
-    public List<Student> getAllStudents() {
-        return studentService.getAll();
+    @GetMapping("/faculty/{facultyId}")
+    public List<Student> getStudentsByFaculty(@PathVariable Long facultyId) {
+        return studentService.getStudentsByFaculty(facultyId);
     }
-
 
     @GetMapping("/count")
     public Integer getStudentsCount() {
@@ -62,8 +59,18 @@ public class StudentController {
         return studentService.getStudentsAverageAge();
     }
 
-    @GetMapping("/last-five")
-    public List<Student> getLastFiveStudents() {
-        return studentService.getLastFiveStudents();
+    @GetMapping("/names-starting-with-a")
+    public List<String> getStudentNamesStartingWithA() {
+        return studentService.getStudentNamesStartingWithA();
+    }
+
+    @GetMapping("/stream/sum")
+    public Long calculateSum() {
+        return studentService.calculateSum();
+    }
+
+    @GetMapping("/stream/sum-optimized")
+    public Long calculateSumOptimized() {
+        return studentService.calculateSumOptimized();
     }
 }
