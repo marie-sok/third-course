@@ -1,7 +1,8 @@
 package ru.hogwarts.school.model;
 
 import jakarta.persistence.*;
-import java.util.Objects;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "student")
@@ -10,28 +11,21 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Name is mandatory")
     private String name;
 
-    @Column(nullable = false)
+    @Min(value = 1, message = "Age must be greater than 0")
     private int age;
 
     @ManyToOne
     @JoinColumn(name = "faculty_id")
     private Faculty faculty;
 
-    public Student() {
-    }
+    public Student() {}
 
     public Student(String name, int age) {
         this.name = name;
         this.age = age;
-    }
-
-    public Student(String name, int age, Faculty faculty) {
-        this.name = name;
-        this.age = age;
-        this.faculty = faculty;
     }
 
     public Long getId() {
@@ -64,28 +58,5 @@ public class Student {
 
     public void setFaculty(Faculty faculty) {
         this.faculty = faculty;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Student student = (Student) o;
-        return Objects.equals(id, student.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Student{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", age=" + age +
-                ", faculty=" + (faculty != null ? faculty.getName() : "null") +
-                '}';
     }
 }

@@ -1,9 +1,5 @@
 package ru.hogwarts.school.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
@@ -11,7 +7,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/student")
-@Tag(name = "Students", description = "API for student management")
 public class StudentController {
     private final StudentService studentService;
 
@@ -20,56 +15,62 @@ public class StudentController {
     }
 
     @PostMapping
-    @Operation(summary = "Create student")
-    public ResponseEntity<Student> create(@RequestBody Student student) {
-        Student createdStudent = studentService.create(student);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdStudent);
+    public Student createStudent(@RequestBody Student student) {
+        return studentService.createStudent(student);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get student by ID")
-    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
-        Student student = studentService.findById(id);
-        return student != null
-                ? ResponseEntity.ok(student)
-                : ResponseEntity.notFound().build();
+    public Student getStudent(@PathVariable Long id) {
+        return studentService.getStudent(id);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update student")
-    public ResponseEntity<Student> update(@PathVariable Long id, @RequestBody Student student) {
-        Student updatedStudent = studentService.update(id, student);
-        return updatedStudent != null
-                ? ResponseEntity.ok(updatedStudent)
-                : ResponseEntity.notFound().build();
+    public Student updateStudent(@PathVariable Long id, @RequestBody Student student) {
+        return studentService.updateStudent(id, student);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete student")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (studentService.findById(id) != null) {
-            studentService.delete(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+    public void deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
     }
 
-    @GetMapping("/age-between")
-    @Operation(summary = "Search student by the age's diapason")
-    public List<Student> getStudentsByAgeBetween(@RequestParam int minAge,
-                                                 @RequestParam int maxAge) {
-        return studentService.findByAgeBetween(minAge, maxAge);
+    @GetMapping("/age/{age}")
+    public List<Student> getStudentsByAge(@PathVariable int age) {
+        return studentService.getStudentsByAge(age);
     }
 
-    @GetMapping("/by-faculty")
-    @Operation(summary = "Search student by the faculty")
-    public List<Student> getStudentsByFaculty(@RequestParam Long facultyId) {
-        return studentService.findByFacultyId(facultyId);
+    @GetMapping("/age/between")
+    public List<Student> getStudentsByAgeBetween(@RequestParam int min, @RequestParam int max) {
+        return studentService.getStudentsByAgeBetween(min, max);
     }
 
-    @GetMapping
-    @Operation(summary = "Get all students")
-    public List<Student> getAllStudents() {
-        return studentService.getAll();
+    @GetMapping("/faculty/{facultyId}")
+    public List<Student> getStudentsByFaculty(@PathVariable Long facultyId) {
+        return studentService.getStudentsByFaculty(facultyId);
+    }
+
+    @GetMapping("/count")
+    public Integer getStudentsCount() {
+        return studentService.getStudentsCount();
+    }
+
+    @GetMapping("/average-age")
+    public Double getStudentsAverageAge() {
+        return studentService.getStudentsAverageAge();
+    }
+
+    @GetMapping("/names-starting-with-a")
+    public List<String> getStudentNamesStartingWithA() {
+        return studentService.getStudentNamesStartingWithA();
+    }
+
+    @GetMapping("/stream/sum")
+    public Long calculateSum() {
+        return studentService.calculateSum();
+    }
+
+    @GetMapping("/stream/sum-optimized")
+    public Long calculateSumOptimized() {
+        return studentService.calculateSumOptimized();
     }
 }
