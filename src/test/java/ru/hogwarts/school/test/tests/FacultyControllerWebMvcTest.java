@@ -8,14 +8,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.hogwarts.school.controller.FacultyController;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.service.FacultyService;
-import java.util.Arrays;
 import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = FacultyController.class)
-class FacultyControllerWebMvcTest {
+@WebMvcTest(FacultyController.class)
+public class FacultyControllerWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -24,43 +24,69 @@ class FacultyControllerWebMvcTest {
     private FacultyService facultyService;
 
     @Test
-    void getFaculty_ShouldReturnFaculty() throws Exception {
-        Faculty faculty = new Faculty("Gryffindor", "Red");
+    void testSearchFaculties() throws Exception {
+        Faculty faculty = new Faculty();
         faculty.setId(1L);
+        faculty.setName("Gryffindor");
+        faculty.setColor("Red");
 
-        when(facultyService.getFaculty(1L)).thenReturn(faculty);
+        when(facultyService.findFacultiesByNameOrColor("Gryffindor", "Red"))
+                .thenReturn(List.of(faculty));
+
+        mockMvc.perform(get("/faculty/search")
+                        .param("name", "Gryffindor")
+                        .param("color", "Red"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Gryffindor"))
+                .andExpect(jsonPath("$[0].color").value("Red"));
+    }
+
+    @Test
+    void testSearchFacultiesByName() throws Exception {
+        Faculty faculty = new Faculty();
+        faculty.setId(1L);
+        faculty.setName("Gryffindor");
+        faculty.setColor("Red");
+
+        when(facultyService.findFacultiesByNameOrColor("Gryffindor", null))
+                .thenReturn(List.of(faculty));
+
+        mockMvc.perform(get("/faculty/search")
+                        .param("name", "Gryffindor"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Gryffindor"));
+    }
+
+    @Test
+    void testSearchFacultiesByColor() throws Exception {
+        Faculty faculty = new Faculty();
+        faculty.setId(1L);
+        faculty.setName("Gryffindor");
+        faculty.setColor("Red");
+
+        when(facultyService.findFacultiesByNameOrColor(null, "Red"))
+                .thenReturn(List.of(faculty));
+
+        mockMvc.perform(get("/faculty/search")
+                        .param("color", "Red"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].color").value("Red"));
+    }
+
+    @Test
+    void testGetFacultyById() throws Exception {
+        Faculty faculty = new Faculty();
+        faculty.setId(1L);
+        faculty.setName("Gryffindor");
+        faculty.setColor("Red");
+
+        when(facultyService.findFaculty(1L)).thenReturn(faculty);
 
         mockMvc.perform(get("/faculty/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Gryffindor"))
                 .andExpect(jsonPath("$.color").value("Red"));
-    }
-
-    @Test
-    void getFacultiesByColor_ShouldReturnFaculties() throws Exception {
-        Faculty faculty1 = new Faculty("Gryffindor", "Red");
-        List<Faculty> faculties = Arrays.asList(faculty1);
-
-        when(facultyService.getFacultiesByColor("Red")).thenReturn(faculties);
-
-        mockMvc.perform(get("/faculty/color/Red"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value("Gryffindor"));
-    }
-
-    @Test
-    void searchFaculties_ShouldReturnFaculties() throws Exception {
-        Faculty faculty1 = new Faculty("Gryffindor", "Red");
-        List<Faculty> faculties = Arrays.asList(faculty1);
-
-        when(facultyService.searchFaculties("Gryffindor", null)).thenReturn(faculties);
-
-        mockMvc.perform(get("/faculty/search")
-                        .param("name", "Gryffindor"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value("Gryffindor"));
     }
 }

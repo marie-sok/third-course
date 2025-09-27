@@ -3,62 +3,57 @@ package ru.hogwarts.school.service;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class FacultyService {
+
     private final FacultyRepository facultyRepository;
 
     public FacultyService(FacultyRepository facultyRepository) {
         this.facultyRepository = facultyRepository;
     }
 
+    public List<Faculty> findFacultiesByNameOrColor(String name, String color) {
+        if (name != null && color != null) {
+            return facultyRepository.findByNameContainingIgnoreCaseAndColorContainingIgnoreCase(name, color);
+        } else if (name != null) {
+            return facultyRepository.findByNameContainingIgnoreCase(name);
+        } else if (color != null) {
+            return facultyRepository.findByColorContainingIgnoreCase(color);
+        } else {
+            return facultyRepository.findAll();
+        }
+    }
+
+    public Faculty findFaculty(Long id) {
+        Optional<Faculty> faculty = facultyRepository.findById(id);
+        return faculty.orElse(null);
+    }
+
     public Faculty createFaculty(Faculty faculty) {
         return facultyRepository.save(faculty);
     }
 
-    public Faculty getFaculty(Long id) {
-        return facultyRepository.findById(id).orElse(null);
-    }
-
     public Faculty updateFaculty(Long id, Faculty faculty) {
-        Faculty existingFaculty = getFaculty(id);
-        if (existingFaculty == null) {
-            return null;
+        Optional<Faculty> existingFaculty = facultyRepository.findById(id);
+        if (existingFaculty.isPresent()) {
+            faculty.setId(id);
+            return facultyRepository.save(faculty);
         }
-        existingFaculty.setName(faculty.getName());
-        existingFaculty.setColor(faculty.getColor());
-        return facultyRepository.save(existingFaculty);
+        return null;
     }
 
     public void deleteFaculty(Long id) {
         facultyRepository.deleteById(id);
     }
 
-    public List<Faculty> getFacultiesByColor(String color) {
-        return facultyRepository.findByColor(color);
-    }
-
-    public List<Faculty> searchFaculties(String name, String color) {
-        if (name != null && color != null) {
-            return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, color);
-        } else if (name != null) {
-            return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, "");
-        } else if (color != null) {
-            return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase("", color);
-        }
-        return facultyRepository.findAll();
-    }
-
     public List<Faculty> getAllFaculties() {
         return facultyRepository.findAll();
     }
 
-    public String getLongestFacultyName() {
-        Optional<Faculty> facultyWithLongestName = facultyRepository.findAll().stream()
-                .max(Comparator.comparingInt(f -> f.getName().length()));
-        return facultyWithLongestName.map(Faculty::getName).orElse("");
+    public Object searchFaculties(String gryffindor, String red) {
+        return gryffindor;
     }
 }

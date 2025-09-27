@@ -7,13 +7,13 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {"spring.liquibase.enabled=false"})
 class IntegrationTest {
 
     @LocalServerPort
@@ -22,40 +22,82 @@ class IntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    private String getStudentsUrl() {
+        return "http://localhost:" + port + "/students";
+    }
+
+    private String getFacultyUrl() {
+        return "http://localhost:" + port + "/faculty";
+    }
+
     @Test
     void testStudentEndpoints() {
-        String baseUrl = "http://localhost:" + port;
 
         Student student = new Student();
         student.setName("Test Student");
         student.setAge(20);
 
-        ResponseEntity<Student> postResponse = restTemplate.postForEntity(
-                baseUrl + "/student", student, Student.class);
-        assertEquals(HttpStatus.OK, postResponse.getStatusCode());
+        ResponseEntity<Student> createResponse = restTemplate.postForEntity(
+                getStudentsUrl(), student, Student.class);
+        assertEquals(HttpStatus.OK, createResponse.getStatusCode());
 
-        Long studentId = postResponse.getBody().getId();
 
+        Long studentId = createResponse.getBody().getId();
         ResponseEntity<Student> getResponse = restTemplate.getForEntity(
-                baseUrl + "/student/" + studentId, Student.class);
+                getStudentsUrl() + "/" + studentId, Student.class);
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
-        assertEquals("Test Student", getResponse.getBody().getName());
+
+
+        createTestStudents();
+
+        ResponseEntity<Void> parallelResponse = restTemplate.getForEntity(
+                getStudentsUrl() + "/print-parallel", Void.class);
+        assertEquals(HttpStatus.OK, parallelResponse.getStatusCode());
+
+        ResponseEntity<Void> syncResponse = restTemplate.getForEntity(
+                getStudentsUrl() + "/print-synchronized", Void.class);
+        assertEquals(HttpStatus.OK, syncResponse.getStatusCode());
     }
 
     @Test
     void testFacultyEndpoints() {
-        String baseUrl = "http://localhost:" + port;
-
+        // Создаем факультет
         Faculty faculty = new Faculty();
-        faculty.setName("Test Faculty");
-        faculty.setColor("Blue");
+        faculty.setName("Gryffindor");
+        faculty.setColor("Red");
 
-        ResponseEntity<Faculty> postResponse = restTemplate.postForEntity(
-                baseUrl + "/faculty", faculty, Faculty.class);
-        assertEquals(HttpStatus.OK, postResponse.getStatusCode());
+        ResponseEntity<Faculty> createResponse = restTemplate.postForEntity(
+                getFacultyUrl(), faculty, Faculty.class);
+        assertEquals(HttpStatus.OK, createResponse.getStatusCode());
+
+
+        Long facultyId = createResponse.getBody().getId();
+        ResponseEntity<Faculty> getResponse = restTemplate.getForEntity(
+                getFacultyUrl() + "/" + facultyId, Faculty.class);
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+
+
+        ResponseEntity<Faculty[]> colorResponse = restTemplate.getForEntity(
+                getFacultyUrl() + "?color=Red", Faculty[].class);
+        assertEquals(HttpStatus.OK, colorResponse.getStatusCode());
+
+
+        ResponseEntity<Faculty[]> nameResponse = restTemplate.getForEntity(
+                getFacultyUrl() + "?name=Gryffindor", Faculty[].class);
+        assertEquals(HttpStatus.OK, nameResponse.getStatusCode());
+
 
         ResponseEntity<String> longestNameResponse = restTemplate.getForEntity(
-                baseUrl + "/faculty/longest-name", String.class);
+                getFacultyUrl() + "/longest-name", String.class);
         assertEquals(HttpStatus.OK, longestNameResponse.getStatusCode());
+    }
+
+    private void createTestStudents() {
+        for (int i = 1; i <= 6; i++) {
+            Student student = new Student();
+            student.setName("Test Student " + i);
+            student.setAge(20 + i);
+            restTemplate.postForEntity(getStudentsUrl(), student, Student.class);
+        }
     }
 }

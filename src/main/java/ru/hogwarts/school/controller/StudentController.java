@@ -1,13 +1,17 @@
 package ru.hogwarts.school.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
+
+import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("/student")
+@RequestMapping("/students")
 public class StudentController {
+
     private final StudentService studentService;
 
     public StudentController(StudentService studentService) {
@@ -15,62 +19,72 @@ public class StudentController {
     }
 
     @PostMapping
-    public Student createStudent(@RequestBody Student student) {
-        return studentService.createStudent(student);
+    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+        Student createdStudent = studentService.createStudent(student);
+        return ResponseEntity.ok(createdStudent);
     }
 
     @GetMapping("/{id}")
-    public Student getStudent(@PathVariable Long id) {
-        return studentService.getStudent(id);
+    public ResponseEntity<Student> getStudent(@PathVariable Long id) {
+        Student student = studentService.getStudentById(id);
+        return student != null ? ResponseEntity.ok(student) : ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
-    public Student updateStudent(@PathVariable Long id, @RequestBody Student student) {
-        return studentService.updateStudent(id, student);
+    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student student) {
+        Student updatedStudent = studentService.updateStudent(id, student);
+        return updatedStudent != null ? ResponseEntity.ok(updatedStudent) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteStudent(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/age/{age}")
-    public List<Student> getStudentsByAge(@PathVariable int age) {
-        return studentService.getStudentsByAge(age);
+    @GetMapping
+    public ResponseEntity<Collection<Student>> getStudentsByAge(@RequestParam(required = false) Integer age) {
+        if (age != null) {
+            return ResponseEntity.ok(studentService.getStudentsByAge(age));
+        }
+        return ResponseEntity.ok(studentService.getAllStudents());
     }
 
-    @GetMapping("/age/between")
-    public List<Student> getStudentsByAgeBetween(@RequestParam int min, @RequestParam int max) {
-        return studentService.getStudentsByAgeBetween(min, max);
+    @GetMapping("/by-age-between")
+    public ResponseEntity<Collection<Student>> getStudentsByAgeBetween(@RequestParam int min, @RequestParam int max) {
+        return ResponseEntity.ok(studentService.getStudentsByAgeBetween(min, max));
     }
 
-    @GetMapping("/faculty/{facultyId}")
-    public List<Student> getStudentsByFaculty(@PathVariable Long facultyId) {
-        return studentService.getStudentsByFaculty(facultyId);
+    @GetMapping("/faculty/{studentId}")
+    public ResponseEntity<Object> getFacultyByStudent(@PathVariable Long studentId) {
+        return ResponseEntity.ok(studentService.getFacultyByStudentId(studentId));
     }
 
     @GetMapping("/count")
-    public Integer getStudentsCount() {
-        return studentService.getStudentsCount();
+    public ResponseEntity<Long> getStudentsCount() {
+        return ResponseEntity.ok(studentService.getStudentsCount());
     }
 
     @GetMapping("/average-age")
-    public Double getStudentsAverageAge() {
-        return studentService.getStudentsAverageAge();
+    public ResponseEntity<Double> getAverageAge() {
+        return ResponseEntity.ok(studentService.getAverageAge());
     }
 
-    @GetMapping("/names-starting-with-a")
-    public List<String> getStudentNamesStartingWithA() {
-        return studentService.getStudentNamesStartingWithA();
+    @GetMapping("/last-five")
+    public ResponseEntity<List<Student>> getLastFiveStudents() {
+        return ResponseEntity.ok(studentService.getLastFiveStudents());
     }
 
-    @GetMapping("/stream/sum")
-    public Long calculateSum() {
-        return studentService.calculateSum();
+
+    @GetMapping("/print-parallel")
+    public ResponseEntity<Void> printStudentsParallel() {
+        studentService.printStudentsParallel();
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/stream/sum-optimized")
-    public Long calculateSumOptimized() {
-        return studentService.calculateSumOptimized();
+    @GetMapping("/print-synchronized")
+    public ResponseEntity<Void> printStudentsSynchronized() {
+        studentService.printStudentsSynchronized();
+        return ResponseEntity.ok().build();
     }
 }
