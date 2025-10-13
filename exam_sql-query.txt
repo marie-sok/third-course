@@ -1,0 +1,7 @@
+﻿SELECT
+departament, // группирую отделы
+MAX(salary) as max_salary //вычисляю максимальную зарплату
+AVG(salary) as avg_salary
+FROM employee
+GROUP BY departament
+HAVING COUNT (*) > 1 // фильтр с условием, больше чем 1 сотрудник
